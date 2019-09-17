@@ -7,6 +7,37 @@ import random
 from Flipkart import views as FV
 from Amazon import views as AV
 from SnapDeal import views as SV
+print("Lets Start !!")
+def str2int(s):
+    return(int(re.sub('[^ 0-9 .]','',s)))
+
+class Product:
+    def __init__(self):
+        self.href=None
+        self.name=None
+        self.aprice=None
+        self.price=None
+        self.discount=None
+        self.img=None
+    def phref(self,href):
+        self.href=href
+        req=requests.get(href)
+        content=req.content
+        self.soup=BeautifulSoup(content,'html.parser')
+    def pname(self):
+        self.name=self.soup.select('._35KyD6')[0].text
+    def pprice(self):
+        price=self.soup.findAll('div',{'class':'_1vC4OE _3qQ9m1'})[0].text
+        self.price=str2int(price)
+    def pdiscount(self):
+        discount=self.soup.findAll('div',{'class':'VGWI6T _1iCvwn'})[0].text
+        self.discount=str2int(discount)
+        self.aprice=(self.price*100)/self.discount
+    def pimg(self):
+        temp=self.soup.findAll('div',{'class':'_2_AcLJ'})[0]
+        self.img=str((temp['style'].split('(')[1]).split('?')[0])
+
+
 user_agent_list = [
         # Chrome
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
@@ -40,7 +71,7 @@ def LowRange():
         req = requests.get(link, headers=headers)
         content = req.content
         soup = BeautifulSoup(content, 'html.parser')
-        print(linklist[link](soup))
+        linklist[link](soup)
 
 
 LowRange()
