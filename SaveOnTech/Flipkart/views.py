@@ -26,24 +26,34 @@ class Product:
         price=self.soup.findAll('div',{'class':'_1vC4OE _3qQ9m1'})[0].text
         self.price=str2int(price)
     def pdiscount(self):
-        discount=self.soup.findAll('div',{'class':'VGWI6T _1iCvwn'})[0].text
-        self.discount=str2int(discount)
-        self.aprice=(self.price*100)/self.discount
+        temp=self.soup.findAll('div',{'class':'VGWI6T _1iCvwn'})
+        if(len(temp)==0):
+            discount=0
+            self.aprice=self.price
+        else:
+            discount=self.soup.findAll('div',{'class':'VGWI6T _1iCvwn'})[0].text
+            self.discount=str2int(discount)
+            self.aprice=(self.price*100)/self.discount
     def pimg(self):
         temp=self.soup.findAll('div',{'class':'_2_AcLJ'})[0]
         self.img=str((temp['style'].split('(')[1]).split('?')[0])
 def Hello(soup):
     s = soup.findAll('a', {'class': '_31qSD5'})
     P = []
+    l=[]
     for i in s:
         t = str(('https://www.flipkart.com' + i['href'].split('?')[0]))
+        l.append(t)
+    ls=set(l)
+    print(ls)
+    for i in ls:
         p = Product()
-        p.phref(t)
+        p.phref(i)
         p.pname()
         p.pprice()
         p.pdiscount()
         p.pimg()
-        print("done")
+        print(p.name)
         P.append(p)
     print(123)
     return(P)
