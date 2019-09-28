@@ -37,7 +37,7 @@ class Product:
     def pimg(self):
         temp=self.soup.findAll('div',{'class':'_2_AcLJ'})[0]
         self.img=str((temp['style'].split('(')[1]).split('?')[0])
-def Hello(soup):
+def website(soup):
     s = soup.findAll('a', {'class': '_31qSD5'})
     P = []
     l=[]
