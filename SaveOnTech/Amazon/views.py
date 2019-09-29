@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 from bs4 import BeautifulSoup
 import requests
 from my_fake_useragent import UserAgent
@@ -40,16 +37,16 @@ user_agent_list = [
 
 
 
-
+csession=requests.session()
 user_agent = random.choice(user_agent_list)
 headers = {'User-Agent': user_agent}
-req=requests.get(link,headers=headers)
+req=csession.get(link,headers=headers)
 content=req.content
 soup=BeautifulSoup(content,'html.parser')
 
 
 def str2int(s):
-    return(int(re.sub('[^ 0-9 .]','',s)))
+    return(float(re.sub('[^ 0-9 .]','',s)))
 class Product:
     def __init__(self):
         self.href=None
@@ -58,6 +55,9 @@ class Product:
         self.price=None
         self.discount=None
         self.img=None
+        self.flag=0
+    def flaged(self):
+        self.flag=1
     def phref(self,href):
         self.href=href
         user = random.choice(user_agent_list)
@@ -65,21 +65,41 @@ class Product:
         req=requests.get(href,headers=header)
         content=req.content
         self.soup=BeautifulSoup(content,'html.parser')
-        print(self.soup)
+        
     def pname(self):
-        self.name=self.soup.findAll('span',{'class':'a-size-large'})
-        print(self.soup)
+        temp=self.soup.findAll('span',{'class':'a-size-large'})
+        if(len(temp)==0):
+            self.flaged()
+        else:
+            self.name=temp[0].text.strip()
+                
         
     def pprice(self):
-        price=self.soup.findAll('div',{'class':'_1vC4OE _3qQ9m1'})[0].text
-        self.price=str2int(price)
+        temp=self.soup.findAll('span',{'class':'a-size-medium a-color-price priceBlockDealPriceString'})
+        if(len(temp)==0):
+            self.price=0
+            self.flaged()
+        else:
+            self.price=str2int(temp[0].text)
+        
     def pdiscount(self):
-        discount=self.soup.findAll('div',{'class':'VGWI6T _1iCvwn'})[0].text
-        self.discount=str2int(discount)
-        self.aprice=(self.price*100)/self.discount
+        
+        temp=self.soup.findAll('span',{'class':'priceBlockStrikePriceString a-text-strike'})
+        if(len(temp)==0):
+            discount=0
+            self.aprice=self.price
+        else:
+            self.aprice=str2int(temp[0].text)
+            self.discount=((self.aprice-self.price)/self.aprice)*100
+
+        
     def pimg(self):
-        temp=self.soup.findAll('div',{'class':'_2_AcLJ'})[0]
-        self.img=str((temp['style'].split('(')[1]).split('?')[0])
+        temp=self.soup.findAll('span',{'class':'a-button-text'})
+        if(len(temp)==0):
+            self.flaged()
+        else:
+            print(temp)
+        print(self.img)
 
 s=soup.findAll('div',{'class':'s-result-list s-search-results sg-row'})
 P=[]
@@ -91,29 +111,16 @@ p=[]
 for i in t:
     p.append('https://www.amazon.in'+i['href'].split('?')[0])
         
-for i in p:
-    print(i)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for q in range(0,10):
+    i=p[q]
+    t=Product()
+    t.phref(i)
+    t.pname()
+    t.pprice()
+    t.pdiscount()
+    t.pimg()
+    if(t.flag==1):
+        print("FLAGGED")
 
 
 
