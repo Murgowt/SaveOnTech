@@ -15,16 +15,27 @@ class Product:
         self.price=None
         self.discount=None
         self.img=None
+        self.flag=0
+    def flagged(self):
+        self.flag=1
     def phref(self,href):
         self.href=href
         req=requests.get(href)
         content=req.content
         self.soup=BeautifulSoup(content,'html.parser')
     def pname(self):
-        self.name=self.soup.select('._35KyD6')[0].text
+        temp=self.soup.select('._35KyD6')
+        if (len(temp) == 0):
+            self.flaged()
+        else:
+            self.name = temp[0].text.strip()
     def pprice(self):
-        price=self.soup.findAll('div',{'class':'_1vC4OE _3qQ9m1'})[0].text
-        self.price=str2int(price)
+        temp=self.soup.findAll('div',{'class':'_1vC4OE _3qQ9m1'})
+        if (len(temp) == 0):
+            self.price = 0
+            self.flaged()
+        else:
+            self.price = str2int(temp[0].text)
     def pdiscount(self):
         temp=self.soup.findAll('div',{'class':'VGWI6T _1iCvwn'})
         if(len(temp)==0):
@@ -35,17 +46,21 @@ class Product:
             self.discount=str2int(discount)
             self.aprice=(self.price*100)/self.discount
     def pimg(self):
-        temp=self.soup.findAll('div',{'class':'_2_AcLJ'})[0]
-        self.img=str((temp['style'].split('(')[1]).split('?')[0])
-def website(soup):
+        temp=self.soup.findAll('div',{'class':'_2_AcLJ'})
+        if (len(temp) == 0):
+            self.flaged()
+        else:
+            temp2 = temp[0]
+            self.img=str((temp2['style'].split('(')[1]).split('?')[0])
+def Hello(soup):
     s = soup.findAll('a', {'class': '_31qSD5'})
     P = []
+    names=[]
     l=[]
     for i in s:
         t = str(('https://www.flipkart.com' + i['href'].split('?')[0]))
         l.append(t)
     ls=set(l)
-    print(ls)
     for i in ls:
         p = Product()
         p.phref(i)
@@ -53,7 +68,16 @@ def website(soup):
         p.pprice()
         p.pdiscount()
         p.pimg()
-        print(p.name)
         P.append(p)
-    print(123)
+        if (p.flag == 1):
+            continue
+        else:
+            temp = p.name.split('(')[0].lower()
+            temp2 = temp.replace(' ', '')
+            if (temp2 in names):
+                continue
+            else:
+                names.append(temp2)
+                P.append(p)
+        print('0')
     return(P)
