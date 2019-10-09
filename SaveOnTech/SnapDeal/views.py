@@ -19,6 +19,7 @@ class Product:
         self.discount=None
         self.img=None
         self.flag=0
+        self.pr=0
     def flaged(self):
         self.flag = 1
     def phref(self,href):
